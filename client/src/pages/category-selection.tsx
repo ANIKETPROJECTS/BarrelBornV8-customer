@@ -92,6 +92,7 @@ import craftBeerOnTapImg from "@assets/Craftbeerontap_1766834179093.png";
 import draughtBeerImg from "@assets/Draught_beer-min_1766834686357.png";
 import beerCocktailImg from "@assets/beer_cocktail_1768238826587.jpg";
 import wineImg from "@assets/image_1768239070678.png";
+import dessertImg from "@assets/DESSERT_1771583946302.jpg";
 
 const subcategoryImages: Record<string, string> = {
   "signature-mocktails": signatureMocktailsImg,
@@ -151,6 +152,7 @@ const subcategoryImages: Record<string, string> = {
   "signature-shots": signatureShotsImg,
   "classic-shots": signatureShotsImg,
   "beer-cocktail": beerCocktailImg,
+  desserts: dessertImg,
 };
 
 export default function CategorySelection() {
