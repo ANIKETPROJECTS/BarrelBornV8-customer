@@ -48,6 +48,7 @@ import dessertWinesImg from "@assets/image_1765864417149.png";
 import portWineImg from "@assets/image_1765864441224.png";
 import signatureMocktailsImg from "@assets/image_1765865243299.png";
 import softBeveragesImg from "@assets/image_1765865174044.png";
+import dessertsImg from "@assets/DESSERT_1771583641155.jpg";
 import fallbackImg from "@assets/coming_soon_imagev2_1766811809828.jpg";
 
 interface ISpeechRecognitionEvent {
@@ -117,7 +118,7 @@ const subcategoryImages: Record<string, string> = {
   "port-wine": fallbackImg,
   "signature-mocktails": signatureMocktailsImg,
   "soft-beverages": softBeveragesImg,
-  desserts: signatureMocktailsImg,
+  desserts: dessertsImg,
 };
 
 export default function CategoryDetail() {

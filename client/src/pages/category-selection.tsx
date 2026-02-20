@@ -43,6 +43,7 @@ import classicCocktailsImg from "@assets/image_1767545845465.png";
 import signatureCocktailsImg from "@assets/image_1767546048894.png";
 import wineCocktailsImg from "@assets/image_1767545904457.png";
 import signatureShotsImg from "@assets/image_1767545936498.png";
+import dessertsImg from "@assets/DESSERT_1771583641155.jpg";
 import mangaloreanImg from "@assets/image_1767538398708.png";
 import signatureMocktailsImg from "@assets/image_1765865243299.png";
 import softBeveragesImg from "@assets/image_1765865174044.png";
@@ -140,6 +141,7 @@ const subcategoryImages: Record<string, string> = {
   "rice-with-curry---thai-asian-bowls": thaiBowlsImg,
   "thai-bowls": thaiBowlsImg,
   "rice-noodles": riceNoodlesImg,
+  desserts: dessertsImg,
   sizzlers: sizzlersImg,
   "pint-beers": pintBeerImg,
   "craft-beers-on-tap": craftBeerOnTapImg,
