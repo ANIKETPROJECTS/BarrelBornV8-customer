@@ -260,5 +260,5 @@ export class MongoStorage implements IStorage {
   }
 }
 
-const connectionString = "mongodb+srv://abarrelborn_db_user:xTl95RKaa9k9MagM@barrelborn.fllyeem.mongodb.net/barrelborn?appName=BarrelBorn";
+const connectionString = process.env.MONGODB_URI || "";
 export const storage = new MongoStorage(connectionString);
