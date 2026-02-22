@@ -1,9 +1,34 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCartItemSchema } from "@shared/schema";
+import { insertCartItemSchema, insertCustomerSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Customer routes
+  app.post("/api/customers", async (req, res) => {
+    try {
+      const validatedData = insertCustomerSchema.parse(req.body);
+      const result = await storage.createOrUpdateCustomer(validatedData);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid customer data" });
+    }
+  });
+
+  app.get("/api/customers", async (req, res) => {
+    // Basic auth for admin view (should be more robust in production)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || authHeader !== `Bearer admin123`) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    try {
+      const customers = await storage.getCustomers();
+      res.json(customers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch customers" });
+    }
+  });
+
   // Menu items routes
   app.get("/api/menu-items", async (req, res) => {
     try {

@@ -1,5 +1,5 @@
 import { MongoClient, Db, Collection, ObjectId } from "mongodb";
-import { type User, type InsertUser, type MenuItem, type InsertMenuItem, type CartItem, type InsertCartItem } from "@shared/schema";
+import { type User, type InsertUser, type MenuItem, type InsertMenuItem, type CartItem, type InsertCartItem, type Customer, type InsertCustomer } from "@shared/schema";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -17,6 +17,11 @@ export interface IStorage {
   removeFromCart(id: string): Promise<void>;
   clearCart(): Promise<void>;
   
+  // Customer operations
+  getCustomers(): Promise<Customer[]>;
+  getCustomerByPhone(phone: string): Promise<Customer | undefined>;
+  createOrUpdateCustomer(customer: InsertCustomer): Promise<{ customer: Customer; isNew: boolean }>;
+
   clearDatabase(): Promise<void>;
   fixVegNonVegClassification(): Promise<{ updated: number; details: string[] }>;
 }
@@ -27,6 +32,7 @@ export class MongoStorage implements IStorage {
   private categoryCollections: Map<string, Collection<MenuItem>>;
   private cartItemsCollection: Collection<CartItem>;
   private usersCollection: Collection<User>;
+  private customersCollection: Collection<Customer>;
   private restaurantId: ObjectId;
 
   private readonly categories = [
@@ -53,6 +59,7 @@ export class MongoStorage implements IStorage {
 
     this.cartItemsCollection = this.db.collection("cartitems");
     this.usersCollection = this.db.collection("users");
+    this.customersCollection = this.db.collection("customers");
     this.restaurantId = new ObjectId("6874cff2a880250859286de6");
   }
 
@@ -68,6 +75,10 @@ export class MongoStorage implements IStorage {
         console.log(`[Storage] Creating missing collection: ${category}`);
         await this.db.createCollection(category);
       }
+    }
+
+    if (!existingNames.includes("customers")) {
+      await this.db.createCollection("customers");
     }
   }
 
@@ -86,6 +97,33 @@ export class MongoStorage implements IStorage {
     const user = { ...insertUser, createdAt: now, updatedAt: now };
     const result = await this.usersCollection.insertOne(user as any);
     return { _id: result.insertedId, ...user } as any;
+  }
+
+  async getCustomers(): Promise<Customer[]> {
+    return await this.customersCollection.find({}).sort({ createdAt: -1 }).toArray();
+  }
+
+  async getCustomerByPhone(phone: string): Promise<Customer | undefined> {
+    const customer = await this.customersCollection.findOne({ contactNumber: phone });
+    return customer || undefined;
+  }
+
+  async createOrUpdateCustomer(insertCustomer: InsertCustomer): Promise<{ customer: Customer; isNew: boolean }> {
+    const existing = await this.getCustomerByPhone(insertCustomer.contactNumber);
+    const now = new Date();
+    
+    if (existing) {
+      const updated = await this.customersCollection.findOneAndUpdate(
+        { _id: existing._id },
+        { $set: { name: insertCustomer.name, updatedAt: now } },
+        { returnDocument: 'after' }
+      );
+      return { customer: updated!, isNew: false };
+    }
+    
+    const customer = { ...insertCustomer, createdAt: now, updatedAt: now };
+    const result = await this.customersCollection.insertOne(customer as any);
+    return { customer: { _id: result.insertedId, ...customer } as any, isNew: true };
   }
 
   async getMenuItems(): Promise<MenuItem[]> {

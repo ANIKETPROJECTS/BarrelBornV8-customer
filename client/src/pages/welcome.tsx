@@ -1,9 +1,15 @@
-import { Utensils, Star } from "lucide-react";
+import { Utensils, Star, User } from "lucide-react";
 import { SiInstagram, SiFacebook, SiYoutube } from "react-icons/si";
 import { useLocation } from "wouter";
 import { useWelcomeAudio } from "../hooks/useWelcomeAudio";
 import { MediaPreloader } from "../components/media-preloader";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import logoImage from "@assets/Untitled_design_(20)_1765720426678.png";
 import bgPattern from "@assets/dark_bg_pattern.png";
 
@@ -11,6 +17,48 @@ export default function Welcome() {
   const [, setLocation] = useLocation();
   const { hasPlayedAudio, audioError, isReady } = useWelcomeAudio();
   const [mediaReady, setMediaReady] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const savedCustomer = localStorage.getItem("customer_info");
+    if (!savedCustomer) {
+      setShowPopup(true);
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customerName || !customerPhone) return;
+    
+    setIsSubmitting(true);
+    try {
+      const res = await apiRequest("POST", "/api/customers", {
+        name: customerName,
+        contactNumber: customerPhone
+      });
+      const data = await res.json();
+      
+      localStorage.setItem("customer_info", JSON.stringify(data.customer));
+      setShowPopup(false);
+      
+      toast({
+        title: data.isNew ? "Welcome!" : `Welcome back, ${data.customer.name}!`,
+        description: data.isNew ? "Thank you for joining us." : "Great to see you again!",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save your information. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleSocialClick = useCallback((url: string) => {
     const newWindow = window.open(url, "_blank", "noopener,noreferrer");
@@ -153,6 +201,54 @@ export default function Welcome() {
         </div>
 
       </div>
+
+      <Dialog open={showPopup} onOpenChange={setShowPopup}>
+        <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] border-[#B8986A] text-[#dcd4c8]">
+          <DialogHeader>
+            <DialogTitle className="text-[#B8986A] text-2xl font-bold text-center">Welcome to Barrelborn</DialogTitle>
+            <DialogDescription className="text-[#dcd4c8] text-center">
+              Please enter your details to proceed to our menu.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-[#dcd4c8]">Name</Label>
+              <Input
+                id="name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Enter your name"
+                className="bg-transparent border-[#B8986A] text-[#dcd4c8] focus:ring-[#B8986A]"
+                required
+                data-testid="input-customer-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-[#dcd4c8]">Contact Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="Enter your contact number"
+                className="bg-transparent border-[#B8986A] text-[#dcd4c8] focus:ring-[#B8986A]"
+                required
+                pattern="[0-9]{10,}"
+                title="Please enter at least 10 digits"
+                data-testid="input-customer-phone"
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-[#B8986A] hover:bg-[#a6895f] text-white font-bold py-6 rounded-full"
+              data-testid="button-submit-customer"
+            >
+              {isSubmitting ? "Submitting..." : "START EXPERIENCE"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
