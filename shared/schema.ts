@@ -65,7 +65,7 @@ export const insertUserSchema = z.object({
 
 export const insertCustomerSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  contactNumber: z.string().min(10, "Contact number must be at least 10 digits"),
+  contactNumber: z.string().regex(/^[0-9]{10}$/, "Contact number must be exactly 10 digits"),
 });
 
 export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;

@@ -36,12 +36,19 @@ export default function Welcome() {
     
     setIsSubmitting(true);
     try {
+      console.log("[Welcome] Submitting customer info:", { name: customerName, contactNumber: customerPhone });
       const res = await apiRequest("POST", "/api/customers", {
         name: customerName,
         contactNumber: customerPhone
       });
-      const data = await res.json();
       
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to save");
+      }
+
+      const data = await res.json();
+      console.log("[Welcome] Customer info saved:", data);
       localStorage.setItem("customer_info", JSON.stringify(data.customer));
       setShowPopup(false);
       
@@ -227,16 +234,23 @@ export default function Welcome() {
               <Label htmlFor="phone" className="text-[#dcd4c8]">Contact Number</Label>
               <Input
                 id="phone"
-                type="tel"
+                type="text"
+                inputMode="numeric"
                 value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="Enter your contact number"
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  if (val.length <= 10) {
+                    setCustomerPhone(val);
+                  }
+                }}
+                placeholder="Enter 10-digit number"
                 className="bg-transparent border-[#B8986A] text-[#dcd4c8] focus:ring-[#B8986A]"
                 required
-                pattern="[0-9]{10,}"
-                title="Please enter at least 10 digits"
                 data-testid="input-customer-phone"
               />
+              {customerPhone && customerPhone.length !== 10 && (
+                <p className="text-xs text-[#B8986A]">Please enter exactly 10 digits</p>
+              )}
             </div>
             <Button
               type="submit"
