@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export default function CustomerList() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -96,11 +97,11 @@ export default function CustomerList() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "admin123") {
+    if (username === "Barrelborn@admin" && password === "BarrelBorn@132231") {
       setIsLoggedIn(true);
       setError("");
     } else {
-      setError("Invalid password");
+      setError("Invalid credentials");
     }
   };
 
@@ -113,18 +114,30 @@ export default function CustomerList() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password"
-                  className="bg-transparent border-[#B8986A] text-[#dcd4c8]"
-                  required
-                />
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Username"
+                    className="bg-transparent border-[#B8986A] text-[#dcd4c8] placeholder:text-[#dcd4c8]/50"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    className="bg-transparent border-[#B8986A] text-[#dcd4c8] placeholder:text-[#dcd4c8]/50"
+                    required
+                  />
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
+                </div>
               </div>
-              <Button type="submit" className="w-full bg-[#B8986A] hover:bg-[#a6895f]">
+              <Button type="submit" className="w-full bg-[#B8986A] text-white hover:bg-[#a6895f] hover:text-white">
                 Login
               </Button>
             </form>
@@ -170,7 +183,7 @@ export default function CustomerList() {
               <Button
                 variant="outline"
                 className={cn(
-                  "justify-start text-left font-normal bg-[#222] border-[#B8986A] text-[#dcd4c8] hover:bg-[#2a2a2a]",
+                  "justify-start text-left font-normal bg-[#222] border-[#B8986A] text-[#dcd4c8] hover:bg-[#2a2a2a] hover:text-white",
                   !dateRange.from && "text-muted-foreground"
                 )}
               >
@@ -204,7 +217,7 @@ export default function CustomerList() {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => setDateRange({ from: undefined, to: undefined })}
-                  className="text-[#B8986A] hover:bg-[#B8986A]/10"
+                  className="text-[#B8986A] hover:bg-[#B8986A]/10 hover:text-white"
                 >
                   Clear
                 </Button>
