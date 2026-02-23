@@ -182,6 +182,9 @@ export default function CustomerList() {
                 selected={{ from: dateRange.from, to: dateRange.to }}
                 onSelect={(range: any) => setDateRange({ from: range?.from, to: range?.to })}
                 numberOfMonths={2}
+                captionLayout="dropdown-buttons"
+                fromYear={2020}
+                toYear={new Date().getFullYear() + 1}
                 className="bg-[#222] text-[#dcd4c8]"
               />
               <div className="p-2 border-t border-[#B8986A]/20 flex justify-end">
@@ -242,15 +245,6 @@ export default function CustomerList() {
                             <ArrowUpDown className="w-3 h-3" />
                           </div>
                         </TableHead>
-                        <TableHead 
-                          className="text-[#B8986A] cursor-pointer hover:text-[#dcd4c8] transition-colors"
-                          onClick={() => toggleSort("lastVisitDate")}
-                        >
-                          <div className="flex items-center gap-2">
-                            Last Visit
-                            <ArrowUpDown className="w-3 h-3" />
-                          </div>
-                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -260,12 +254,11 @@ export default function CustomerList() {
                           <TableCell>{customer.contactNumber}</TableCell>
                           <TableCell>{customer.visitCount || 1}</TableCell>
                           <TableCell>{format(new Date(customer.createdAt), "PPP p")}</TableCell>
-                          <TableCell>{customer.lastVisitDate ? format(new Date(customer.lastVisitDate), "PPP p") : "N/A"}</TableCell>
                         </TableRow>
                       ))}
                       {customers.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center py-12 opacity-50">
+                          <TableCell colSpan={4} className="text-center py-12 opacity-50">
                             <div className="flex flex-col items-center gap-2">
                               <Users className="w-8 h-8 mb-2 opacity-20" />
                               No customers found
