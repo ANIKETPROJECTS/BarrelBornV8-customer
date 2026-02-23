@@ -22,8 +22,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "Unauthorized" });
     }
     try {
-      const customers = await storage.getCustomers();
-      res.json(customers);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const search = (req.query.search as string) || "";
+      const sortBy = (req.query.sortBy as string) || "createdAt";
+      const sortOrder = (req.query.sortOrder as string) === "asc" ? 1 : -1;
+
+      const allCustomers = await storage.getCustomers();
+      
+      // Filtering
+      let filtered = allCustomers.filter(c => 
+        c.name.toLowerCase().includes(search.toLowerCase()) || 
+        c.contactNumber.includes(search)
+      );
+
+      // Sorting
+      filtered.sort((a: any, b: any) => {
+        const valA = a[sortBy];
+        const valB = b[sortBy];
+        if (valA < valB) return -1 * sortOrder;
+        if (valA > valB) return 1 * sortOrder;
+        return 0;
+      });
+
+      const total = filtered.length;
+      const paginated = filtered.slice((page - 1) * limit, page * limit);
+
+      res.json({
+        customers: paginated,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit)
+      });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch customers" });
     }

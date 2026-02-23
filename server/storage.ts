@@ -113,15 +113,37 @@ export class MongoStorage implements IStorage {
     const now = new Date();
     
     if (existing) {
+      const lastVisit = existing.lastVisitDate ? new Date(existing.lastVisitDate) : null;
+      const isSameDay = lastVisit && 
+        lastVisit.getFullYear() === now.getFullYear() &&
+        lastVisit.getMonth() === now.getMonth() &&
+        lastVisit.getDate() === now.getDate();
+
+      const updateData: any = { 
+        name: insertCustomer.name, 
+        updatedAt: now,
+        lastVisitDate: now
+      };
+
+      if (!isSameDay) {
+        updateData.$inc = { visitCount: 1 };
+      }
+
       const updated = await this.customersCollection.findOneAndUpdate(
         { _id: existing._id },
-        { $set: { name: insertCustomer.name, updatedAt: now } },
+        updateData.hasOwnProperty('$inc') ? { $set: { name: updateData.name, updatedAt: updateData.updatedAt, lastVisitDate: updateData.lastVisitDate }, $inc: updateData.$inc } : { $set: updateData },
         { returnDocument: 'after' }
       );
       return { customer: updated!, isNew: false };
     }
     
-    const customer = { ...insertCustomer, createdAt: now, updatedAt: now };
+    const customer = { 
+      ...insertCustomer, 
+      visitCount: 1,
+      lastVisitDate: now,
+      createdAt: now, 
+      updatedAt: now 
+    };
     const result = await this.customersCollection.insertOne(customer as any);
     return { customer: { _id: result.insertedId, ...customer } as any, isNew: true };
   }

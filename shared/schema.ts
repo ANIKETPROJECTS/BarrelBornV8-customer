@@ -37,6 +37,8 @@ export interface Customer {
   _id: ObjectId;
   name: string;
   contactNumber: string;
+  visitCount: number;
+  lastVisitDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -66,6 +68,8 @@ export const insertUserSchema = z.object({
 export const insertCustomerSchema = z.object({
   name: z.string().min(1, "Name is required"),
   contactNumber: z.string().regex(/^[0-9]{10}$/, "Contact number must be exactly 10 digits"),
+  visitCount: z.number().optional().default(1),
+  lastVisitDate: z.date().optional(),
 });
 
 export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
