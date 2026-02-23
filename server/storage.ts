@@ -29,6 +29,7 @@ export interface IStorage {
 export class MongoStorage implements IStorage {
   private client: MongoClient;
   private db: Db;
+  private customersDb: Db;
   private categoryCollections: Map<string, Collection<MenuItem>>;
   private cartItemsCollection: Collection<CartItem>;
   private usersCollection: Collection<User>;
@@ -51,6 +52,7 @@ export class MongoStorage implements IStorage {
   constructor(connectionString: string) {
     this.client = new MongoClient(connectionString);
     this.db = this.client.db("barrelborn");
+    this.customersDb = this.client.db("customersdb");
     this.categoryCollections = new Map();
 
     this.categories.forEach(category => {
@@ -59,7 +61,7 @@ export class MongoStorage implements IStorage {
 
     this.cartItemsCollection = this.db.collection("cartitems");
     this.usersCollection = this.db.collection("users");
-    this.customersCollection = this.db.collection("customers");
+    this.customersCollection = this.customersDb.collection("customers");
     this.restaurantId = new ObjectId("6874cff2a880250859286de6");
   }
 
@@ -77,8 +79,12 @@ export class MongoStorage implements IStorage {
       }
     }
 
-    if (!existingNames.includes("customers")) {
-      await this.db.createCollection("customers");
+    const customerCollections = await this.customersDb.listCollections().toArray();
+    const customerExistingNames = customerCollections.map(c => c.name);
+
+    if (!customerExistingNames.includes("customers")) {
+      console.log(`[Storage] Creating missing collection: customers in customersdb`);
+      await this.customersDb.createCollection("customers");
     }
   }
 
