@@ -135,9 +135,17 @@ export class MongoStorage implements IStorage {
         updateData.$inc = { visitCount: 1 };
       }
 
+      let updateOperation;
+      if (updateData.$inc) {
+        const { $inc, ...setFields } = updateData;
+        updateOperation = { $set: setFields, $inc };
+      } else {
+        updateOperation = { $set: updateData };
+      }
+
       const updated = await this.customersCollection.findOneAndUpdate(
         { _id: existing._id },
-        updateData.hasOwnProperty('$inc') ? { $set: { name: updateData.name, updatedAt: updateData.updatedAt, lastVisitDate: updateData.lastVisitDate }, $inc: updateData.$inc } : { $set: updateData },
+        updateOperation,
         { returnDocument: 'after' }
       );
       return { customer: updated!, isNew: false };
