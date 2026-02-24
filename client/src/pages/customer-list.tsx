@@ -169,7 +169,7 @@ export default function CustomerList() {
               >
                 <CalendarIcon className="mr-2 h-4 w-4 text-[#B8986A]" />
                 {dateRange.from ? (
-                  dateRange.to ? (
+                  dateRange.to && format(dateRange.from, "LLL dd, y") !== format(dateRange.to, "LLL dd, y") ? (
                     <>
                       {format(dateRange.from, "LLL dd, y")} -{" "}
                       {format(dateRange.to, "LLL dd, y")}
