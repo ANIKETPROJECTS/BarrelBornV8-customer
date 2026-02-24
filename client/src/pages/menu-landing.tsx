@@ -9,6 +9,11 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { mainCategories } from "@/lib/menu-categories";
 import HamburgerMenu from "@/components/hamburger-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 import premiumFoodImg from "@assets/image_1765866040643.png";
 import premiumBarImg from "@assets/stock_images/premium_whisky_cockt_68b3295e.jpg";
@@ -61,6 +66,53 @@ export default function MenuLanding() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const [showPopup, setShowPopup] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const savedCustomer = localStorage.getItem("customer_info");
+    if (!savedCustomer) {
+      setShowPopup(true);
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customerName || !customerPhone) return;
+    
+    setIsSubmitting(true);
+    try {
+      const res = await apiRequest("POST", "/api/customers", {
+        name: customerName,
+        contactNumber: customerPhone
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to save");
+      }
+
+      const data = await res.json();
+      localStorage.setItem("customer_info", JSON.stringify(data.customer));
+      setShowPopup(false);
+      
+      toast({
+        title: data.isNew ? "Welcome!" : `Welcome back, ${data.customer.name}!`,
+        description: data.isNew ? "Thank you for joining us." : "Great to see you again!",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save your information. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -130,6 +182,72 @@ export default function MenuLanding() {
           onCategoryClick={handleCategoryClick}
         />
       </header>
+
+      <Dialog 
+        open={showPopup} 
+        onOpenChange={(open) => {
+          if (localStorage.getItem("customer_info")) {
+            setShowPopup(open);
+          }
+        }}
+      >
+        <DialogContent 
+          className="sm:max-w-[425px] bg-[#1a1a1a] border-[#B8986A] text-[#dcd4c8]"
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-[#B8986A] text-2xl font-bold text-center">Welcome to Barrelborn</DialogTitle>
+            <DialogDescription className="text-[#dcd4c8] text-center">
+              Please enter your details to proceed to our menu.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-[#dcd4c8]">Name</Label>
+              <Input
+                id="name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Enter your name"
+                className="bg-transparent border-[#B8986A] text-[#dcd4c8] focus:ring-[#B8986A]"
+                required
+                data-testid="input-customer-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-[#dcd4c8]">Contact Number</Label>
+              <Input
+                id="phone"
+                type="text"
+                inputMode="numeric"
+                value={customerPhone}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  if (val.length <= 10) {
+                    setCustomerPhone(val);
+                  }
+                }}
+                placeholder="Enter 10-digit number"
+                className="bg-transparent border-[#B8986A] text-[#dcd4c8] focus:ring-[#B8986A]"
+                required
+                data-testid="input-customer-phone"
+              />
+              {customerPhone && customerPhone.length !== 10 && (
+                <p className="text-xs text-[#B8986A]">Please enter exactly 10 digits</p>
+              )}
+            </div>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-[#B8986A] hover:bg-[#a6895f] text-white font-bold py-6 rounded-full"
+              data-testid="button-submit-customer"
+            >
+              {isSubmitting ? "Submitting..." : "START EXPERIENCE"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="container mx-auto px-3 sm:px-4 py-2">
         <div className="relative h-40 sm:h-48 md:h-56 rounded-xl overflow-hidden mb-4">

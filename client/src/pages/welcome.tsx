@@ -23,50 +23,6 @@ export default function Welcome() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const savedCustomer = localStorage.getItem("customer_info");
-    if (!savedCustomer) {
-      setShowPopup(true);
-    }
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customerName || !customerPhone) return;
-    
-    setIsSubmitting(true);
-    try {
-      console.log("[Welcome] Submitting customer info:", { name: customerName, contactNumber: customerPhone });
-      const res = await apiRequest("POST", "/api/customers", {
-        name: customerName,
-        contactNumber: customerPhone
-      });
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to save");
-      }
-
-      const data = await res.json();
-      console.log("[Welcome] Customer info saved:", data);
-      localStorage.setItem("customer_info", JSON.stringify(data.customer));
-      setShowPopup(false);
-      
-      toast({
-        title: data.isNew ? "Welcome!" : `Welcome back, ${data.customer.name}!`,
-        description: data.isNew ? "Thank you for joining us." : "Great to see you again!",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save your information. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const handleExploreMenu = () => {
     playWelcomeAudio();
     setLocation("/menu");
@@ -213,73 +169,6 @@ export default function Welcome() {
         </div>
 
       </div>
-
-      <Dialog 
-        open={showPopup} 
-        onOpenChange={(open) => {
-          // Only allow closing if customer info is already in localStorage
-          if (localStorage.getItem("customer_info")) {
-            setShowPopup(open);
-          }
-        }}
-      >
-        <DialogContent 
-          className="sm:max-w-[425px] bg-[#1a1a1a] border-[#B8986A] text-[#dcd4c8]"
-          onPointerDownOutside={(e) => e.preventDefault()}
-          onEscapeKeyDown={(e) => e.preventDefault()}
-        >
-          <DialogHeader>
-            <DialogTitle className="text-[#B8986A] text-2xl font-bold text-center">Welcome to Barrelborn</DialogTitle>
-            <DialogDescription className="text-[#dcd4c8] text-center">
-              Please enter your details to proceed to our menu.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-[#dcd4c8]">Name</Label>
-              <Input
-                id="name"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Enter your name"
-                className="bg-transparent border-[#B8986A] text-[#dcd4c8] focus:ring-[#B8986A]"
-                required
-                data-testid="input-customer-name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-[#dcd4c8]">Contact Number</Label>
-              <Input
-                id="phone"
-                type="text"
-                inputMode="numeric"
-                value={customerPhone}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "");
-                  if (val.length <= 10) {
-                    setCustomerPhone(val);
-                  }
-                }}
-                placeholder="Enter 10-digit number"
-                className="bg-transparent border-[#B8986A] text-[#dcd4c8] focus:ring-[#B8986A]"
-                required
-                data-testid="input-customer-phone"
-              />
-              {customerPhone && customerPhone.length !== 10 && (
-                <p className="text-xs text-[#B8986A]">Please enter exactly 10 digits</p>
-              )}
-            </div>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-[#B8986A] hover:bg-[#a6895f] text-white font-bold py-6 rounded-full"
-              data-testid="button-submit-customer"
-            >
-              {isSubmitting ? "Submitting..." : "START EXPERIENCE"}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
