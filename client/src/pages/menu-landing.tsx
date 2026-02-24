@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Menu as MenuIcon,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Menu as MenuIcon, X } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { mainCategories } from "@/lib/menu-categories";
 import HamburgerMenu from "@/components/hamburger-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -58,7 +60,7 @@ const wineCategories = new Set([
   "rose-wines",
   "red-wines",
   "dessert-wines",
-  "port-wine"
+  "port-wine",
 ]);
 
 export default function MenuLanding() {
@@ -82,14 +84,14 @@ export default function MenuLanding() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName || !customerPhone) return;
-    
+
     setIsSubmitting(true);
     try {
       const res = await apiRequest("POST", "/api/customers", {
         name: customerName,
-        contactNumber: customerPhone
+        contactNumber: customerPhone,
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to save");
@@ -98,10 +100,12 @@ export default function MenuLanding() {
       const data = await res.json();
       localStorage.setItem("customer_info", JSON.stringify(data.customer));
       setShowPopup(false);
-      
+
       toast({
         title: data.isNew ? "Welcome!" : `Welcome back, ${data.customer.name}!`,
-        description: data.isNew ? "Thank you for joining us." : "Great to see you again!",
+        description: data.isNew
+          ? "Thank you for joining us."
+          : "Great to see you again!",
       });
     } catch (error) {
       toast({
@@ -183,28 +187,32 @@ export default function MenuLanding() {
         />
       </header>
 
-      <Dialog 
-        open={showPopup} 
+      <Dialog
+        open={showPopup}
         onOpenChange={(open) => {
           if (localStorage.getItem("customer_info")) {
             setShowPopup(open);
           }
         }}
       >
-        <DialogContent 
+        <DialogContent
           className="sm:max-w-[425px] bg-[#1a1a1a] border-[#B8986A] text-[#dcd4c8]"
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
           <DialogHeader>
-            <DialogTitle className="text-[#B8986A] text-2xl font-bold text-center">Welcome to Barrelborn</DialogTitle>
+            <DialogTitle className="text-[#B8986A] text-2xl font-bold text-center">
+              Welcome to Barrelborn
+            </DialogTitle>
             <DialogDescription className="text-[#dcd4c8] text-center">
               Please enter your details to proceed to our menu.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-[#dcd4c8]">Name</Label>
+              <Label htmlFor="name" className="text-[#dcd4c8]">
+                Name
+              </Label>
               <Input
                 id="name"
                 value={customerName}
@@ -216,7 +224,9 @@ export default function MenuLanding() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-[#dcd4c8]">Contact Number</Label>
+              <Label htmlFor="phone" className="text-[#dcd4c8]">
+                Contact Number
+              </Label>
               <Input
                 id="phone"
                 type="text"
@@ -234,7 +244,9 @@ export default function MenuLanding() {
                 data-testid="input-customer-phone"
               />
               {customerPhone && customerPhone.length !== 10 && (
-                <p className="text-xs text-[#B8986A]">Please enter exactly 10 digits</p>
+                <p className="text-xs text-[#B8986A]">
+                  Please enter exactly 10 digits
+                </p>
               )}
             </div>
             <Button
@@ -243,7 +255,7 @@ export default function MenuLanding() {
               className="w-full bg-[#B8986A] hover:bg-[#a6895f] text-white font-bold py-6 rounded-full"
               data-testid="button-submit-customer"
             >
-              {isSubmitting ? "Submitting..." : "START EXPERIENCE"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           </form>
         </DialogContent>
@@ -282,44 +294,49 @@ export default function MenuLanding() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:gap-4 pb-4">
-          {mainCategories.filter(cat => cat.id !== "wine" && !cat.hidden).map((category, index) => (
-            <motion.button
-              key={category.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleCategoryClick(category.id)}
-              className="relative rounded-lg overflow-hidden group"
-              style={{ aspectRatio: "1/1.05" }}
-              data-testid={`tile-${category.id}`}
-            >
-              <img
-                src={failedImages.has(category.id) ? fallbackImg : categoryImages[category.id]}
-                alt={category.displayLabel}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                onError={() => {
-                  setFailedImages(prev => new Set(prev).add(category.id));
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              <div className="absolute inset-0 flex flex-col items-center justify-end p-2 pb-3">
-                <h3
-                  className="text-base sm:text-lg md:text-xl font-bold tracking-wider uppercase text-center"
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    color: "#FFFFFF",
-                    textShadow:
-                      "0 2px 8px rgba(0,0,0,0.8)",
-                    letterSpacing: "0.5px",
+          {mainCategories
+            .filter((cat) => cat.id !== "wine" && !cat.hidden)
+            .map((category, index) => (
+              <motion.button
+                key={category.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleCategoryClick(category.id)}
+                className="relative rounded-lg overflow-hidden group"
+                style={{ aspectRatio: "1/1.05" }}
+                data-testid={`tile-${category.id}`}
+              >
+                <img
+                  src={
+                    failedImages.has(category.id)
+                      ? fallbackImg
+                      : categoryImages[category.id]
+                  }
+                  alt={category.displayLabel}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  onError={() => {
+                    setFailedImages((prev) => new Set(prev).add(category.id));
                   }}
-                >
-                  {category.displayLabel}
-                </h3>
-              </div>
-            </motion.button>
-          ))}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute inset-0 flex flex-col items-center justify-end p-2 pb-3">
+                  <h3
+                    className="text-base sm:text-lg md:text-xl font-bold tracking-wider uppercase text-center"
+                    style={{
+                      fontFamily: "'Playfair Display', serif",
+                      color: "#FFFFFF",
+                      textShadow: "0 2px 8px rgba(0,0,0,0.8)",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    {category.displayLabel}
+                  </h3>
+                </div>
+              </motion.button>
+            ))}
         </div>
       </div>
     </div>
