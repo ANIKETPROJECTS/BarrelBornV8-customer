@@ -15,7 +15,7 @@ import bgPattern from "@assets/dark_bg_pattern.png";
 
 export default function Welcome() {
   const [, setLocation] = useLocation();
-  const { hasPlayedAudio, audioError, isReady } = useWelcomeAudio();
+  const { hasPlayedAudio, audioError, isReady, playWelcomeAudio } = useWelcomeAudio();
   const [mediaReady, setMediaReady] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [customerName, setCustomerName] = useState("");
@@ -65,6 +65,11 @@ export default function Welcome() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleExploreMenu = () => {
+    playWelcomeAudio();
+    setLocation("/menu");
   };
 
   const handleSocialClick = useCallback((url: string) => {
@@ -130,7 +135,7 @@ export default function Welcome() {
 
         {/* Explore Menu Button */}
         <button
-          onClick={() => setLocation("/menu")}
+          onClick={handleExploreMenu}
           className="mt-7 px-10 py-3 font-semibold border-2 rounded-full transition-colors flex items-center gap-2 text-base"
           style={{ borderColor: '#B8986A', color: '#FFFFFF', backgroundColor: '#B8986A' }}
         >
@@ -209,8 +214,20 @@ export default function Welcome() {
 
       </div>
 
-      <Dialog open={showPopup} onOpenChange={setShowPopup}>
-        <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] border-[#B8986A] text-[#dcd4c8]">
+      <Dialog 
+        open={showPopup} 
+        onOpenChange={(open) => {
+          // Only allow closing if customer info is already in localStorage
+          if (localStorage.getItem("customer_info")) {
+            setShowPopup(open);
+          }
+        }}
+      >
+        <DialogContent 
+          className="sm:max-w-[425px] bg-[#1a1a1a] border-[#B8986A] text-[#dcd4c8]"
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="text-[#B8986A] text-2xl font-bold text-center">Welcome to Barrelborn</DialogTitle>
             <DialogDescription className="text-[#dcd4c8] text-center">
