@@ -188,7 +188,14 @@ export default function CustomerList() {
                 mode="range"
                 defaultMonth={dateRange.from}
                 selected={{ from: dateRange.from, to: dateRange.to }}
-                onSelect={(range: any) => setDateRange({ from: range?.from, to: range?.to })}
+    onSelect={(range: any) => {
+      // If a single date is selected (range is a Date object or has no 'to')
+      if (range && !range.to) {
+        setDateRange({ from: range.from || range, to: range.from || range });
+      } else {
+        setDateRange({ from: range?.from, to: range?.to });
+      }
+    }}
                 numberOfMonths={2}
                 captionLayout="dropdown-buttons"
                 fromYear={2020}

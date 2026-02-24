@@ -47,6 +47,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           if (dateTo) {
             const to = new Date(dateTo);
+            // If dateTo is provided but it's the same day as dateFrom (single date selection),
+            // or if it's just a range, we should ensure the visitDate is within that day.
             to.setUTCHours(23, 59, 59, 999);
             if (visitDate > to) matchesDate = false;
           }
