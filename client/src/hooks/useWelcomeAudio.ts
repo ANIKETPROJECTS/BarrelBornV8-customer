@@ -61,6 +61,15 @@ export function useWelcomeAudio() {
 
       globalSetupComplete = true;
       
+      const absolutePath = window.location.origin + barrelbornWelcomeAudio;
+      const audioSources = [
+        barrelbornWelcomeAudio,
+        absolutePath,
+        '/Welcome.mp3',
+        './Welcome.mp3', 
+        '/assets/Welcome.mp3'
+      ];
+      
       for (const source of audioSources) {
         try {
           const audio = new Audio();
