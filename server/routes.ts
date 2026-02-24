@@ -27,14 +27,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const search = (req.query.search as string) || "";
       const sortBy = (req.query.sortBy as string) || "createdAt";
       const sortOrder = (req.query.sortOrder as string) === "asc" ? 1 : -1;
+      const dateFrom = req.query.dateFrom as string;
+      const dateTo = req.query.dateTo as string;
 
       const allCustomers = await storage.getCustomers();
       
       // Filtering
-      let filtered = allCustomers.filter(c => 
-        c.name.toLowerCase().includes(search.toLowerCase()) || 
-        c.contactNumber.includes(search)
-      );
+      let filtered = allCustomers.filter(c => {
+        const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || 
+                            c.contactNumber.includes(search);
+        
+        let matchesDate = true;
+        if (dateFrom || dateTo) {
+          const visitDate = new Date(c.createdAt);
+          if (dateFrom) {
+            const from = new Date(dateFrom);
+            from.setHours(0, 0, 0, 0);
+            if (visitDate < from) matchesDate = false;
+          }
+          if (dateTo) {
+            const to = new Date(dateTo);
+            to.setHours(23, 59, 59, 999);
+            if (visitDate > to) matchesDate = false;
+          }
+        }
+        
+        return matchesSearch && matchesDate;
+      });
 
       // Sorting
       filtered.sort((a: any, b: any) => {

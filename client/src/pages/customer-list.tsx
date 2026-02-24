@@ -35,7 +35,7 @@ export default function CustomerList() {
     page: number; 
     totalPages: number 
   }>({
-    queryKey: ["/api/customers", page, searchTerm, sortConfig],
+    queryKey: ["/api/customers", page, searchTerm, sortConfig, dateRange],
     enabled: isLoggedIn,
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -45,6 +45,14 @@ export default function CustomerList() {
         sortBy: sortConfig.key,
         sortOrder: sortConfig.direction
       });
+      
+      if (dateRange.from) {
+        params.append("dateFrom", dateRange.from.toISOString());
+      }
+      if (dateRange.to) {
+        params.append("dateTo", dateRange.to.toISOString());
+      }
+
       const res = await fetch(`/api/customers?${params.toString()}`, {
         headers: {
           Authorization: `Bearer admin123`,
