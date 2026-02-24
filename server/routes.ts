@@ -42,12 +42,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const visitDate = new Date(c.createdAt);
           if (dateFrom) {
             const from = new Date(dateFrom);
-            from.setHours(0, 0, 0, 0);
+            from.setUTCHours(0, 0, 0, 0);
             if (visitDate < from) matchesDate = false;
           }
           if (dateTo) {
             const to = new Date(dateTo);
-            to.setHours(23, 59, 59, 999);
+            to.setUTCHours(23, 59, 59, 999);
             if (visitDate > to) matchesDate = false;
           }
         }
