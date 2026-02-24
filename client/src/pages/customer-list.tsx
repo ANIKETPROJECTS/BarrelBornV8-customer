@@ -47,10 +47,10 @@ export default function CustomerList() {
       });
       
       if (dateRange.from) {
-        params.append("dateFrom", dateRange.from.toISOString());
+        params.append("dateFrom", format(dateRange.from, "yyyy-MM-dd"));
       }
       if (dateRange.to) {
-        params.append("dateTo", dateRange.to.toISOString());
+        params.append("dateTo", format(dateRange.to, "yyyy-MM-dd"));
       }
 
       const res = await fetch(`/api/customers?${params.toString()}`, {

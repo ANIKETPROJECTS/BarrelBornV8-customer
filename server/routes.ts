@@ -40,21 +40,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let matchesDate = true;
         if (dateFrom || dateTo) {
           const visitDate = new Date(c.createdAt);
-          // Get local date parts for the visit
+          // Format visit date as YYYY-MM-DD for string comparison
           const vYear = visitDate.getFullYear();
-          const vMonth = visitDate.getMonth();
-          const vDate = visitDate.getDate();
-          const visitTimestamp = new Date(vYear, vMonth, vDate).getTime();
+          const vMonth = String(visitDate.getMonth() + 1).padStart(2, '0');
+          const vDay = String(visitDate.getDate()).padStart(2, '0');
+          const visitDateString = `${vYear}-${vMonth}-${vDay}`;
 
           if (dateFrom) {
-            const from = new Date(dateFrom);
-            const fromTimestamp = new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime();
-            if (visitTimestamp < fromTimestamp) matchesDate = false;
+            // dateFrom is already in YYYY-MM-DD format from frontend
+            if (visitDateString < dateFrom) matchesDate = false;
           }
           if (dateTo) {
-            const to = new Date(dateTo);
-            const toTimestamp = new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime();
-            if (visitTimestamp > toTimestamp) matchesDate = false;
+            // dateTo is already in YYYY-MM-DD format from frontend
+            if (visitDateString > dateTo) matchesDate = false;
           }
         }
         
