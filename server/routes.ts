@@ -39,16 +39,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         let matchesDate = true;
         if (dateFrom || dateTo) {
+          // Normalize visit date to start of day in UTC for comparison
           const visitDate = new Date(c.createdAt);
+          const visitDateStart = new Date(Date.UTC(visitDate.getUTCFullYear(), visitDate.getUTCMonth(), visitDate.getUTCDate()));
+
           if (dateFrom) {
             const from = new Date(dateFrom);
-            from.setUTCHours(0, 0, 0, 0);
-            if (visitDate < from) matchesDate = false;
+            const fromStart = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()));
+            if (visitDateStart < fromStart) matchesDate = false;
           }
           if (dateTo) {
             const to = new Date(dateTo);
-            to.setUTCHours(23, 59, 59, 999);
-            if (visitDate > to) matchesDate = false;
+            const toStart = new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate()));
+            if (visitDateStart > toStart) matchesDate = false;
           }
         }
         

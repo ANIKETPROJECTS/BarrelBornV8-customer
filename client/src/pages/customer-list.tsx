@@ -190,9 +190,15 @@ export default function CustomerList() {
                 selected={{ from: dateRange.from, to: dateRange.to }}
     onSelect={(range: any) => {
       if (range?.from) {
+        // Create new Date objects at local midnight to avoid timezone shifts when calling toISOString
+        const fromDate = new Date(range.from.getFullYear(), range.from.getMonth(), range.from.getDate());
+        const toDate = range.to 
+          ? new Date(range.to.getFullYear(), range.to.getMonth(), range.to.getDate())
+          : new Date(range.from.getFullYear(), range.from.getMonth(), range.from.getDate());
+
         setDateRange({ 
-          from: range.from, 
-          to: range.to || range.from 
+          from: fromDate, 
+          to: toDate 
         });
       } else {
         setDateRange({ from: undefined, to: undefined });
