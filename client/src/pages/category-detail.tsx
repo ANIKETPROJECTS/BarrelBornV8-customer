@@ -126,7 +126,7 @@ export default function CategoryDetail() {
   const categoryId = params.category || "food";
   
   const mainCategory = getMainCategory(categoryId);
-  const subcategories = mainCategory?.subcategories || [];
+  const subcategories = (mainCategory?.subcategories || []).filter(s => !s.hidden);
   const validSubcategoryIds = getSubcategoryIds(categoryId);
 
   const [activeSubcategory, setActiveSubcategory] = useState(

@@ -167,7 +167,7 @@ export default function CategorySelection() {
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   const mainCategory = getMainCategory(categoryId);
-  const subcategories = mainCategory?.subcategories || [];
+  const subcategories = (mainCategory?.subcategories || []).filter(s => !s.hidden);
 
   const getInitialVegFilter = () => {
     try {

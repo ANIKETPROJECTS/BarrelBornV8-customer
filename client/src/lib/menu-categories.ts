@@ -6,6 +6,7 @@ export interface SubCategory {
   displayLabel: string;
   dbCategory: string;
   image?: string;
+  hidden?: boolean;
 }
 
 export interface MainCategory {
@@ -25,11 +26,11 @@ export const foodSubcategories: SubCategory[] = [
   { id: "mangalorean-style", displayLabel: "Mangalorean Style", dbCategory: "mangalorean-style" },
   { id: "wok", displayLabel: "Wok", dbCategory: "wok" },
   { id: "charcoal", displayLabel: "Charcoal", dbCategory: "charcoal" },
-  { id: "continental", displayLabel: "Continental", dbCategory: "continental" },
-  { id: "pasta", displayLabel: "Pasta", dbCategory: "pasta" },
-  { id: "artisan-pizzas", displayLabel: "Artisan Pizzas", dbCategory: "artisan-pizzas" },
+  { id: "continental", displayLabel: "Continental", dbCategory: "continental", hidden: true },
+  { id: "pasta", displayLabel: "Pasta", dbCategory: "pasta", hidden: true },
+  { id: "artisan-pizzas", displayLabel: "Artisan Pizzas", dbCategory: "artisan-pizzas", hidden: true },
   { id: "mini-burger-sliders", displayLabel: "Mini Burger Sliders", dbCategory: "mini-burger-sliders" },
-  { id: "entree", displayLabel: "Entree (Main Course)", dbCategory: "entree" },
+  { id: "entree", displayLabel: "Entree (Main Course)", dbCategory: "entree", hidden: true },
   { id: "bao-dimsum", displayLabel: "Bao & Dim Sum", dbCategory: "bao-dimsum" },
   { id: "indian-mains-curries", displayLabel: "Indian Mains - Curries", dbCategory: "indian-mains-curries" },
   { id: "biryanis-rice", displayLabel: "Biryanis & Rice", dbCategory: "biryanis-rice" },
